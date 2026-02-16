@@ -1,6 +1,7 @@
 from openai import OpenAI
 import streamlit as st
 import time
+import streamlit_js_eval
 
 st.set_page_config(page_title="Your HR Agent", page_icon=":robot_face:")
 st.title("Job Interview Simulator :briefcase: :robot_face:")
@@ -171,3 +172,6 @@ if st.session_state["feedback_shown"]:
     )
     st.markdown(f"**Overall Score:** {feedback_response.output_text.split('Feedback:')[0].replace('Overall Score:', '').strip()}")
     st.markdown(f"**Feedback:** {feedback_response.output_text.split('Feedback:')[1].strip()}")
+
+    if st.button("Restart Interview", type="primary"):
+        streamlit_js_eval(js_expressions=["parent.window.location.reload()"])
