@@ -1,7 +1,8 @@
 from openai import OpenAI
 import streamlit as st
 import time
-import streamlit_js_eval
+from streamlit_js_eval import streamlit_js_eval
+
 
 st.set_page_config(page_title="Your HR Agent", page_icon=":robot_face:")
 st.title("Job Interview Simulator :briefcase: :robot_face:")
@@ -38,10 +39,13 @@ if "level" not in st.session_state:
     st.session_state["level"] = "Junior"
 
 if "position" not in st.session_state:
-    st.session_state["position"] = "Software Engineer"
+    st.session_state["position"] = ""
 
 if "company" not in st.session_state:
-    st.session_state["company"] = "Google"
+    st.session_state["company"] = ""
+
+if "job_description" not in st.session_state:
+    st.session_state["job_description"] = ""
 
 def onboard():
     st.session_state["onboarded"] = True
@@ -59,27 +63,23 @@ if not st.session_state["onboarded"]:
     st.session_state["experience"] = st.text_area(label="Experience", value=st.session_state["experience"], placeholder="Describe your experience", height=None, max_chars=200)
     st.session_state["skills"] = st.text_area(label="Skills", value=st.session_state["skills"], placeholder="List your skills", height=None, max_chars=200)  
 
-    st.write("**Name:** ", st.session_state["name"])
-    st.write("**Experience:** ", st.session_state["experience"])
-    st.write("**Skills:** ", st.session_state["skills"])
 
     st.subheader("Company & Position", divider="rainbow")
+    
+    st.session_state["company"] = st.text_input(label="Select company", value=st.session_state["company"], max_chars=40, placeholder="Enter the company name")
+    
     col1, col2 = st.columns(2)
     with col1:
-        st.session_state["level"] = st.radio(label="Choose level",
-                        key="visibility",
-                            options=["Junior", "Mid", "Senior", "Lead"]
+        st.session_state["level"] = st.selectbox(
+                                label="Choose level",
+                                options=["Junior", "Mid", "Senior", "Lead"],
+                                index=0
                             )
     with col2:
-        st.session_state["position"] = st.radio(label="Choose position",
-                            options=["Data Scientist",
-                            "Software Engineer", "Product Manager", "Designer", "Other"],
-                                index=0)
+        st.session_state["position"] = st.text_input(label="Position", value=st.session_state["position"], 
+                                                    max_chars=40, placeholder="Enter the position you are applying for")
 
-    st.session_state["company"] = st.selectbox(label="Select company",
-                            options=["Google", "Microsoft", "Amazon", "Facebook", "Apple", "Other"], index=0)
-
-    st.write(f"**Your Information:** {st.session_state['level']} {st.session_state['position']} at {st.session_state['company']}")
+    st.session_state["job_description"] = st.text_area(label="Job Description", value=st.session_state["job_description"], placeholder="Enter the job description", height=None, max_chars=200)
 
     if st.button("Start Interview"):
         onboard()
@@ -89,7 +89,7 @@ if st.session_state["onboarded"] and not st.session_state["feedback_shown"] and 
 
     st.info(f"""Welcome {st.session_state['name']}! You are interviewing for 
             a {st.session_state['level']} {st.session_state['position']} position 
-            at {st.session_state['company']}. Let's get started! :wave:""")
+            at {st.session_state['company']}. :wave: Lets start by introducing yourself""")
 
     client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -102,7 +102,7 @@ if st.session_state["onboarded"] and not st.session_state["feedback_shown"] and 
         st.session_state["messages"] = [
             {"role": "system", "content": f"""You are an HR executive at {st.session_state['company']} interviewing a candidate for a 
             {st.session_state['level']} {st.session_state['position']} position. The candidate's name is {st.session_state['name']}. They have the following experience:'
-            ' {st.session_state['experience']}. They have the following skills: {st.session_state['skills']}. Ask them questions about their experience'
+            ' {st.session_state['experience']}. They have the following skills: {st.session_state['skills']}. The job description is: {st.session_state['job_description']}. Ask them questions about their experience'
             ' and skills, and provide feedback on their suitability for the position."""}
         ]
 
@@ -174,4 +174,4 @@ if st.session_state["feedback_shown"]:
     st.markdown(f"**Feedback:** {feedback_response.output_text.split('Feedback:')[1].strip()}")
 
     if st.button("Restart Interview", type="primary"):
-        streamlit_js_eval(js_expressions=["parent.window.location.reload()"])
+        streamlit_js_eval(js_expressions="parent.window.location.reload()")
