@@ -4,10 +4,12 @@ import time
 from streamlit_js_eval import streamlit_js_eval
 
 
-st.set_page_config(page_title="Your HR Agent", page_icon=":robot_face:")
-st.title("Job Interview Simulator :briefcase: :robot_face:")
+st.set_page_config(page_title="Job Interview Simulator - Practice before you appear", page_icon=":robot_face:")
+st.title("Job Interview Simulator :briefcase:")
 
+st.info(""" :wave: Meet your AI Job Interview Simulator - your smart practice partner for interview preparation. Based on your applied position and job description, it asks five tailored questions and then provides detailed feedback with a performance score. Use it to refine your answers and boost your confidence before the real interview.
 
+""")
 
 
 if "onboarded" not in st.session_state:
@@ -79,7 +81,7 @@ if not st.session_state["onboarded"]:
         st.session_state["position"] = st.text_input(label="Position", value=st.session_state["position"], 
                                                     max_chars=40, placeholder="Enter the position you are applying for")
 
-    st.session_state["job_description"] = st.text_area(label="Job Description", value=st.session_state["job_description"], placeholder="Enter the job description", height=None, max_chars=200)
+    st.session_state["job_description"] = st.text_area(label="Job Description", value=st.session_state["job_description"], placeholder="Enter the job description", height=None, max_chars=1000)
 
     if st.button("Start Interview"):
         onboard()
